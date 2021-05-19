@@ -5,7 +5,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "start": "nodemon server.js",
+    "start": "node server.js",
     "heroku-postBuild": "npm install && exec start"
   },
   "author": "rin",
