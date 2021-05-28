@@ -1,15 +1,4 @@
 import jwt from "jsonwebtoken";
-import nodemailer from "nodemailer";
-import sendgridTransport from "nodemailer-sendgrid-transport";
-
-export const transporter = nodemailer.createTransport(
-  sendgridTransport({
-    auth: {
-      api_key:
-        "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",
-    },
-  })
-);
 
 export const generateToken = (user) => {
   return jwt.sign(

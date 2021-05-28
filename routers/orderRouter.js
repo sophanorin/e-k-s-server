@@ -1,10 +1,53 @@
-import express from "express";
+import express, { response } from "express";
 import expressAsyncHandler from "express-async-handler";
 import Order from "../models/orderModel.js";
 import User from "../models/userModels.js";
-import { isAdmin, isAuth, transporter } from "../utils.js";
+import { isAdmin, isAuth } from "../utils.js";
+import SGMail from "@sendgrid/mail";
 
 const orderRouter = express.Router();
+
+const Message = (user, order) => ({
+  to: "heousopharin168@gmail.com",
+  from: "eks233023@gmail.com",
+  subject: `Order By <${user.name}>`,
+  html: `
+  <h4>order id : ${order._id}</h4>
+  <h4>from user : ${user.name} <{user.email}> </h4>
+  <h4>phone : ${user.phone}</h4>
+  <h4>payment : ${order.paymentMethod}</h4>
+  <h4>isPaid : ${order.isPaid ? "Yes" : "No"}</h4>
+  <table border = "1">
+    <thead>
+      <tr>
+        <th>Product ID</th>
+        <th>Product Name</th>
+        <th>Quantity</th>
+        <th>Price</th>
+        
+      </tr>
+    </thead>
+     <tbody>
+     <tr style={text-align: center;}>
+        ${order.orderItems.map(
+          (product) => `
+          <tr>
+            <td>${product._id}</td>
+            <td>${product.title}</td>
+            <td>${product.qty}</td>
+            <td>$ ${product.price}</td>
+          </tr>
+          `
+        )}
+    </tr>
+     </tbody>
+  </table>
+  <h5>tax : $${order.taxPrice}</h5>
+  <h5>delivery : $${order.deliveryPrice}</h5>
+  <h5>Total SubItems : $${order.itemsPrice}</h5>
+  <h4>Total : $${order.totalPrice}</h4>
+  `,
+});
 
 orderRouter.get(
   "/",
@@ -47,47 +90,9 @@ orderRouter.post(
         res.status(201).send({ messages: "New Order Created", order: order });
 
         User.findById(order.user).then((user) => {
-          transporter.sendMail({
-            from: "eks233023@gmail.com",
-            to: "eks233023@gmail.com",
-            subject: `Order By <${user.name}>`,
-            html: `
-            <h4>order id : ${order._id}</h4>
-            <h4>from user : ${user.name} <{user.email}> </h4>
-            <h4>phone : ${user.phone}</h4>
-            <h4>payment : ${order.paymentMethod}</h4>
-            <h4>isPaid : ${order.isPaid ? "Yes" : "No"}</h4>
-            <table border = "1">
-              <thead>
-                <tr>
-                  <th>Product ID</th>
-                  <th>Product Name</th>
-                  <th>Quantity</th>
-                  <th>Price</th>
-                  
-                </tr>
-              </thead>
-               <tbody>
-               <tr style={text-align: center;}>
-                  ${order.orderItems.map(
-                    (product) => `
-                    <tr>
-                      <td>${product._id}</td>
-                      <td>${product.title}</td>
-                      <td>${product.qty}</td>
-                      <td>$ ${product.price}</td>
-                    </tr>
-                    `
-                  )}
-              </tr>
-               </tbody>
-            </table>
-            <h5>tax : $${order.taxPrice}</h5>
-            <h5>delivery : $${order.deliveryPrice}</h5>
-            <h5>Total SubItems : $${order.itemsPrice}</h5>
-            <h4>Total : $${order.totalPrice}</h4>
-            `,
-          });
+          SGMail.send(Message(user, order)).then((response) =>
+            console.log(response)
+          );
         });
       });
     }
