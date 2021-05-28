@@ -8,7 +8,7 @@ import SGMail from "@sendgrid/mail";
 const orderRouter = express.Router();
 
 const Message = (user, order) => ({
-  to: "heousopharin168@gmail.com",
+  to: process.env.ADMIN_EMAIL,
   from: "eks233023@gmail.com",
   subject: `Order By <${user.name}>`,
   html: `
