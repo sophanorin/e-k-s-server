@@ -49,7 +49,7 @@ orderRouter.post(
         User.findById(order.user).then((user) => {
           transporter.sendMail({
             from: "eks233023@gmail.com",
-            to: "hoeusophanorin@gmail.com",
+            to: "eks233023@gmail.com",
             subject: `Order By <${user.name}>`,
             html: `
             <h4>order id : ${order._id}</h4>
